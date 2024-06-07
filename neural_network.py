@@ -236,6 +236,7 @@ class Optimizer_adagrad:
         self.decay = decay
         self.iteration = 0
         self.epsilon = 1e-7
+        
     def pre_update_params(self):
         '''learning rate decreases as iteration increases'''
         if self.decay:
@@ -269,7 +270,7 @@ X_df = np.array(df_train.drop(["target"], axis = 1))
 y_df = np.array(df_train["target"])
 X_train, X_valid, Y_train, Y_valid = train_test_split(X_df, y_df, shuffle=True, test_size=0.3)
 
-
+# A hard coded working network
 Loss = CrossEntropyLoss_SoftMax()
 relu = Leaky_ReLU()
 softmax = Softmax()
@@ -421,14 +422,19 @@ nn = ANN([(DenseLayer(64,64), Leaky_ReLU()),
           (DenseLayer(32,10), )])
 
 
+# test on a digit recognition dataset
+
 
 digits_data = sklearn.datasets.load_digits()
 digits_data_Y = digits_data.target
 digits_data_X = digits_data.data
 X_train, X_valid, Y_train, Y_valid = train_test_split(digits_data_X, digits_data_Y, shuffle=True, test_size=0.3)
 
-
-
+nn2 = ANN([(DenseLayer(64,64), ReLU()), 
+          (DenseLayer(64,32), ReLU()),
+          (DenseLayer(32,32), ReLU()),
+          (DenseLayer(32,10), )])
+nn2.fit(X_train, Y_train, epochs = 400)
 out = nn2.evaluate(X_valid)
 Accuracy(out, Y_valid)
 
