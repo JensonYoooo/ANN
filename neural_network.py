@@ -174,7 +174,8 @@ class CrossEntropyLoss_SoftMax():
         return self.loss.calculate(self.outputs, ytrue)
         
     def bp(self, dvalues, ytrue):
-        '''The derivative of the combined loss is just predicted-actual'''
+        ''' There's a short cut if we use softmax on the last layer.
+        The derivative of the combined loss is just predicted-actual'''
         sample = len(dvalues)
         
         if ytrue.shape == 2:
@@ -194,11 +195,14 @@ class DenseLayer(object):
         
         
     def fw_progagation(self, inputs):
+        '''forward propagation without activation function'''
+        
         self.inputs  = inputs
         self.outputs = np.dot(inputs,self.weights)+self.bias
         return self.outputs
 
     def bw_progagation(self, dvalues):
+         '''backward propagation without activation function'''
         self.dweights = np.dot(self.inputs.T, dvalues) 
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True) 
         self.dinputs = np.dot(dvalues, self.weights.T)
@@ -221,6 +225,8 @@ class Optimizer_SGD:
         self.learning_rate = learning_rate
         
     def update_params(self, layer):
+        '''gradient descend for weights and biases'''
+        
         layer.weights -= self.learning_rate*layer.dweights
         layer.bias -= self.learning_rate*layer.dbiases
 
@@ -316,7 +322,6 @@ for epoch in range(100):
     optimizer.update_params(ds2)
     optimizer.update_params(ds1)
     optimizer.update_iteration()
-    #optimizer.update_params(ds3)
    
     
     
@@ -372,7 +377,9 @@ class ANN():
     
     def backward(self, X, y):
         '''define a back propagation
-        the order of it is exactly the opposite '''
+        the order of it is exactly the opposite 
+        
+        '''
         self.layers.reverse()
         self.Loss.bp(self.Loss.outputs, y)
         self.layers[0].bw_progagation(self.Loss.dinputs)
